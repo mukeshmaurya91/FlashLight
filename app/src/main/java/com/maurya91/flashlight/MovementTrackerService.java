@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 public class MovementTrackerService extends Service {
     private boolean isFlashOn=false;
+    private Camera mCamera;
 
     public MovementTrackerService() {
     }
@@ -87,16 +89,15 @@ public class MovementTrackerService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mCameraManager.setTorchMode(mCameraId,true);
             }else{
-
+                mCamera = Camera.open();
+                Camera.Parameters parameters= mCamera.getParameters();
+                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                mCamera.setParameters(parameters);
+                mCamera.startPreview();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-//         camera= Camera.open();
-//        Camera.Parameters parameters= camera.getParameters();
-//        parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-//        camera.setParameters(parameters);
-//        camera.startPreview();
 
     }
     public void stopFlashLite(){
@@ -104,13 +105,12 @@ public class MovementTrackerService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mCameraManager.setTorchMode(mCameraId,false);
             }else{
-
+                   mCamera.stopPreview();
+                   mCamera.release();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-//         camera.startPreview();
-//        camera.release();
     }
     class MySensorListener implements SensorEventListener{
         private static  final int SHAKE_THRESHOLD=500;
