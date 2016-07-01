@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -16,9 +17,11 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 public class MovementTrackerService extends Service {
     private boolean isFlashOn=false;
-    private Camera mCamera;
+    private static Camera mCamera=null;
 
     public MovementTrackerService() {
     }
@@ -93,6 +96,7 @@ public class MovementTrackerService extends Service {
                 Camera.Parameters parameters= mCamera.getParameters();
                 parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                 mCamera.setParameters(parameters);
+                mCamera.lock();
                 mCamera.startPreview();
             }
         } catch (Exception e) {
@@ -106,6 +110,7 @@ public class MovementTrackerService extends Service {
                 mCameraManager.setTorchMode(mCameraId,false);
             }else{
                    mCamera.stopPreview();
+                   mCamera.unlock();
                    mCamera.release();
             }
         } catch (Exception e) {
@@ -167,12 +172,15 @@ public class MovementTrackerService extends Service {
     }
 
     private void shakeDetected() {
-        toast("SHAKE DETECTED.");
+
         if (isFlashOn) {
+            toast("SHAKE DETECTED! Turning OFF Flash ");
             stopFlashLite();
             isFlashOn=false;
+
         }
         else {
+            toast("SHAKE DETECTED! Turning ON Flash ");
             startFlashLite();
             isFlashOn=true;
         }

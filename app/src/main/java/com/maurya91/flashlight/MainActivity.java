@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //        fab.hide();
         if (msgText!=null)
-        if (isFlashPresent())
+        if (!isFlashPresent())
         {
             msgText.setText("This functionality does not work in your device.Flash light not present.");
         }else {
