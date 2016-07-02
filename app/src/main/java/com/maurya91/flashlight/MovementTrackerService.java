@@ -83,6 +83,9 @@ public class MovementTrackerService extends Service {
             return;
         Log.d(">>>>>>>>>>","onDestroy.");
         mSensorManager.unregisterListener(mListener);
+        if (mCamera!=null){
+           stopFlashLite();
+        }
 
     }
 
@@ -96,8 +99,8 @@ public class MovementTrackerService extends Service {
                 Camera.Parameters parameters= mCamera.getParameters();
                 parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                 mCamera.setParameters(parameters);
-                mCamera.lock();
                 mCamera.startPreview();
+                mCamera.lock();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,9 +112,11 @@ public class MovementTrackerService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mCameraManager.setTorchMode(mCameraId,false);
             }else{
-                   mCamera.stopPreview();
                    mCamera.unlock();
+                   mCamera.stopPreview();
+                   mCamera.setPreviewCallback(null);
                    mCamera.release();
+                   mCamera=null;
             }
         } catch (Exception e) {
             e.printStackTrace();
